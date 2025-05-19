@@ -40,7 +40,7 @@ This document captures the key discussions, decisions, and insights leading to t
 
 * **Goal:** To store these JavaScript object definitions (for requests and response examples) in a GitHub repository.
 * **Name Selection:** After discussing several options focusing on "universal," "schema," and "trading/exchange," we decided on the repository name: `exchange-schema`.
-  * Link to repository: [exchange-schema](https://github.com/dmitriz/exchange-schema)
+  * Repository link: [https://github.com/dmitriz/exchange-schema](https://github.com/dmitriz/exchange-schema)
 * **File Structure Discussed:**
   * `backlog.md`: This file, to capture discussion context.
   * `exchangeParams.js`: To contain the universal request parameters object.
@@ -55,6 +55,10 @@ This document captures the key discussions, decisions, and insights leading to t
 * **Developer Convenience:** Aiming for clear, descriptive field names and organized structures to make it easier for developers to work with exchange APIs.
 
 ## Workflow for Adding Files
+
+* For each new file, first create a draft of the file content based on the discussion and goals.
+* After review, add the finalized files to the repository.
+* Document any important implementation decisions in comments within the code.
 
 ## Initial Repository Population
 
