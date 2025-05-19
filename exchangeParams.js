@@ -12,18 +12,52 @@
  * 2. Fill in the required and optional parameters for your specific API call.
  * 3. Remove or leave empty any unused optional fields.
  * 4. Add any exchange-specific parameters to the `exchange_specific_params` object.
+ * 
+ * ⚠️ SECURITY WARNING: Never store actual credentials in this file or commit them to version control!
  */
+
+// Define common enums used in the parameters
+const ORDER_SIDE = {
+    BUY: "BUY",
+    SELL: "SELL"
+};
+
+const ORDER_TYPE = {
+    LIMIT: "LIMIT",
+    MARKET: "MARKET",
+    STOP_LOSS: "STOP_LOSS", 
+    STOP_LOSS_LIMIT: "STOP_LOSS_LIMIT",
+    TAKE_PROFIT: "TAKE_PROFIT",
+    TAKE_PROFIT_LIMIT: "TAKE_PROFIT_LIMIT",
+    LIMIT_MAKER: "LIMIT_MAKER"
+};
+
+const TIME_IN_FORCE = {
+    GTC: "GTC", // Good Til Canceled
+    IOC: "IOC", // Immediate Or Cancel
+    FOK: "FOK", // Fill Or Kill
+    GTX: "GTX"  // Good Til Crossing (Post Only)
+};
 
 const ExchangeParams = {
     // === Authentication & General API Settings ===
-    // SECURITY NOTE: Never include credentials in this template object.
-    // Always load them securely at runtime.
-    api_key: null,               // string: [REQUIRED] Load from process.env.API_KEY or secure storage
-    // secret_key: null,         // string: [REQUIRED] SECURITY RISK - NEVER include in objects or commit to version control
-                                 //         Always load directly from env vars or secure storage at runtime
-    // passphrase: null,         // string: [OPTIONAL] Required by some exchanges (e.g., Coinbase Pro, KuCoin)
-                                 //         Handle with same security as secret_key
-    user_id: null,               // string: [OPTIONAL] Required by some exchanges
+    // ⚠️ SECURITY WARNING ⚠️
+    // NEVER hardcode actual credentials in this object or commit them to version control!
+    // ALWAYS load sensitive credentials from environment variables or a secure credential store.
+    // Examples: 
+    //   - process.env.API_KEY
+    //   - Use a secure vault or key management service
+    //   - For local development, use .env files that are in .gitignore
+    
+    // ✅ Recommended pattern:
+    // api_key: process.env.EXCHANGE_API_KEY,       // Load from environment variable
+    // secret_key: process.env.EXCHANGE_SECRET_KEY, // Load from environment variable
+    // passphrase: process.env.EXCHANGE_PASSPHRASE, // Load from environment variable
+    
+    api_key: "",                // string: [REQUIRED] API Key for the exchange
+    secret_key: "",             // string: [REQUIRED] API Secret Key
+    passphrase: "",             // string: [OPTIONAL] Required by some exchanges (e.g., Coinbase Pro, KuCoin)
+    user_id: null,              // string: [OPTIONAL] Required by some exchanges
     
     // Dynamic runtime values - DO NOT pre-populate these values
     // timestamp: null,          // number: [REQUIRED] MUST be generated fresh at request time using Date.now()
@@ -32,19 +66,18 @@ const ExchangeParams = {
     
     // === Endpoint & Request Type ===
     // http_method: "GET",      // string: e.g., "GET", "POST", "PUT", "DELETE" (Often handled by the SDK/library)
-    quantity: null,               // string | number: Amount of base asset to buy/sell. (e.g., qty, amount, size)
-
+    
     // Import order parameter enums from a dedicated constants file
     // These constants should be defined in a separate exchangeConstants.js file
 
     // === Common Order Parameters ===
     symbol: "",                 // string: Trading pair symbol (e.g., "BTCUSDT", "ETH_BTC"). (e.g., symbol, instrument_id, market)
-    side: ORDER_SIDE.BUY,       // Use enum instead of raw string value
-    type: ORDER_TYPE.LIMIT,     // Use enum instead of raw string value
+    side: ORDER_SIDE.BUY,       // string: Order side (BUY or SELL)
+    type: ORDER_TYPE.LIMIT,     // string: Order type (LIMIT, MARKET, etc.)
     quantity: "",               // string | number: Amount of base asset to buy/sell. (e.g., qty, amount, size)
     quote_order_qty: "",        // string | number: Amount of quote asset to spend (for MARKET BUY orders on some exchanges). (e.g., quoteOrderQty)
     price: "",                  // string | number: Price for LIMIT orders.
-    time_in_force: "GTC",       // Use TIME_IN_FORCE.GTC enum from constants file
+    time_in_force: TIME_IN_FORCE.GTC, // string: How long the order remains in effect (GTC, IOC, FOK)
     client_order_id: "",        // string: Custom order ID provided by the client. (e.g., clientOid, newClientOrderId)
     stop_price: "",             // string | number: Price for STOP_LOSS, TAKE_PROFIT orders. (e.g., triggerPrice)
     iceberg_qty: "",            // string | number: For iceberg orders, the visible quantity. (e.g., icebergQty)
@@ -89,57 +122,23 @@ const ExchangeParams = {
     // position_side: ""        // string: e.g., "LONG", "SHORT", "BOTH" (for futures)
 };
 
-// --- Suggested Enums/Constants (can be defined elsewhere and imported) ---
-/*
-const ORDER_SIDE = {
-    BUY: "BUY",
-    SELL: "SELL"
+// Export the ExchangeParams object and the enums
+// Choose one of the following export patterns depending on your environment:
+
+// For CommonJS environments (Node.js):
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        ExchangeParams,
+        ORDER_SIDE,
+        ORDER_TYPE,
+        TIME_IN_FORCE
+    };
+}
+
+// For ES Modules (modern browsers, TypeScript, etc.):
+export {
+    ExchangeParams as default,
+    ORDER_SIDE,
+    ORDER_TYPE,
+    TIME_IN_FORCE
 };
-
-const ORDER_TYPE = {
-    LIMIT: "LIMIT",
-    MARKET: "MARKET",
-    STOP_LOSS: "STOP_LOSS", // Price-triggered market order
-    STOP_LOSS_LIMIT: "STOP_LOSS_LIMIT", // Price-triggered limit order
-    TAKE_PROFIT: "TAKE_PROFIT", // Price-triggered market order
-    TAKE_PROFIT_LIMIT: "TAKE_PROFIT_LIMIT", // Price-triggered limit order
-    LIMIT_MAKER: "LIMIT_MAKER" // Post-only limit order
-};
-
-const TIME_IN_FORCE = {
-    GTC: "GTC", // Good Til Canceled
-    IOC: "IOC", // Immediate Or Cancel
-    FOK: "FOK", // Fill Or Kill
-    GTX: "GTX", // Good Til Crossing (Post Only) - some exchanges use this or a boolean like `postOnly`
-    // POST_ONLY: "POST_ONLY" // Alternative for GTX, sometimes a separate boolean flag
-};
-
-const KLINE_INTERVALS = {
-    ONE_MINUTE: "1m",
-    THREE_MINUTES: "3m",
-    FIVE_MINUTES: "5m",
-    FIFTEEN_MINUTES: "15m",
-    THIRTY_MINUTES: "30m",
-    ONE_HOUR: "1h",
-    TWO_HOURS: "2h",
-    FOUR_HOURS: "4h",
-    SIX_HOURS: "6h",
-    EIGHT_HOURS: "8h",
-    TWELVE_HOURS: "12h",
-    ONE_DAY: "1d",
-    THREE_DAYS: "3d",
-    ONE_WEEK: "1w",
-    ONE_MONTH: "1M"
-};
-*/
-
-// To use it in your code:
-// If you are using Node.js or a module system, you might want to export it:
-// module.exports = ExchangeParams; // For CommonJS
-export default ExchangeParams; // For ES Modules
-// myOrderParams.side = ORDER_SIDE.BUY;
-// ... and so on.
-
-// If you are using Node.js or a module system, you might want to export it:
-// module.exports = ExchangeParams; // For CommonJS
-// export default ExchangeParams; // For ES Modules
