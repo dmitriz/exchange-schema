@@ -1,43 +1,34 @@
 /**
- * Universal Exchange API Request Parameters
- *
- * This object serves as a template for structuring parameters for requests to cryptocurrency exchange APIs.
+ * @fileoverview Universal Exchange API Request Parameters
+ * @description Standard template for structuring cryptocurrency exchange API requests
+ * @author Your Name
+ * @version 1.0.0
+ * @module ExchangeParams
+ * 
+ * This module defines a standardized parameter structure for cryptocurrency exchange API requests.
  * It includes common fields found across many exchanges and provides sections for exchange-specific parameters.
  *
- * Naming Convention: snake_case is used for consistency within this object.
- * Comments may indicate typical camelCase equivalents or other common API field names.
- *
- * Usage:
- * 1. Create a new object based on this template.
- * 2. Fill in the required and optional parameters for your specific API call.
- * 3. Remove or leave empty any unused optional fields.
- * 4. Add any exchange-specific parameters to the `exchange_specific_params` object.
+ * @example
+ * // Basic usage example
+ * const params = Object.assign({}, ExchangeParams);
+ * params.symbol = "BTCUSDT";
+ * params.side = ORDER_SIDE.BUY;
+ * params.type = ORDER_TYPE.LIMIT;
+ * params.quantity = "0.001";
+ * params.price = "50000";
+ * params.timestamp = Date.now();
  * 
- * ⚠️ SECURITY WARNING: Never store actual credentials in this file or commit them to version control!
+ * @property {string} api_key - API Key for the exchange
+ * @property {string} secret_key - API Secret Key
+ * @property {string} [passphrase] - Required by some exchanges (e.g., Coinbase Pro, KuCoin)
+ * @property {string} [user_id] - Required by some exchanges
+ * @property {number} [timestamp] - Request timestamp (ms)
+ *
+ * @see Documentation and examples in README.md
  */
 
-// Define common enums used in the parameters
-const ORDER_SIDE = Object.freeze({
-    BUY: "BUY",
-    SELL: "SELL"
-});
-
-const ORDER_TYPE = Object.freeze({
-    LIMIT: "LIMIT",
-    MARKET: "MARKET",
-    STOP_LOSS: "STOP_LOSS", 
-    STOP_LOSS_LIMIT: "STOP_LOSS_LIMIT",
-    TAKE_PROFIT: "TAKE_PROFIT",
-    TAKE_PROFIT_LIMIT: "TAKE_PROFIT_LIMIT",
-    LIMIT_MAKER: "LIMIT_MAKER"
-});
-
-const TIME_IN_FORCE = Object.freeze({
-    GTC: "GTC", // Good Til Canceled
-    IOC: "IOC", // Immediate Or Cancel
-    FOK: "FOK", // Fill Or Kill
-    GTX: "GTX"  // Good Til Crossing (Post Only)
-});
+// Import constants from separate file
+const { ORDER_SIDE, ORDER_TYPE, TIME_IN_FORCE } = require('./constants');
 
 /**
  * Universal Exchange API Request Parameters Template
@@ -76,12 +67,13 @@ const ExchangeParams = {
     user_id: null,              // string: [OPTIONAL] Required by some exchanges
     
     // Dynamic runtime values - DO NOT pre-populate these values
-    timestamp: null,           // number: [REQUIRED] MUST be generated fresh at request time using Date.now()
+    timestamp: null,            // number: [REQUIRED] MUST be generated fresh at request time using Date.now()
     recv_window: 5000,          // number: [OPTIONAL] Request validity window (milliseconds)
-    // signature: null,          // string: [REQUIRED] MUST be generated at runtime from params using secret_key
+    // signature: null,         // string: [REQUIRED] MUST be generated at runtime from params using secret_key
     
     // === Endpoint & Request Type ===
-    // http_method: "GET",      // string: e.g., "GET", "POST", "PUT", "DELETE" (Often handled by the SDK/library)
+    http_method: "GET",         // string: e.g., "GET", "POST", "PUT", "DELETE"
+    endpoint_path: "",          // string: API endpoint path (e.g., "/api/v3/order")
     
     // Import order parameter enums from a dedicated constants file
     // These constants should be defined in a separate exchangeConstants.js file
@@ -104,11 +96,11 @@ const ExchangeParams = {
     orig_client_order_id: "",   // string: Original client_order_id (for canceling/querying). (e.g., origClientOrderId)
 
     // === Pagination Parameters (for fetching lists like orders, trades) ===
-    start_time: 0,              // number: Timestamp (ms) for filtering results from a certain time. (e.g., startTime)
-    end_time: 0,                // number: Timestamp (ms) for filtering results up to a certain time. (e.g., endTime)
+    start_time: null,           // number: Timestamp (ms) for filtering results from a certain time. (e.g., startTime)
+    end_time: null,             // number: Timestamp (ms) for filtering results up to a certain time. (e.g., endTime)
     from_id: null,              // string | number: ID to fetch results after (exclusive). (e.g., fromId, after)
-    limit: 0,                   // number: Number of items to retrieve per page. (e.g., pageSize, count)
-    page_index: 0,              // number: Page number (for offset-based pagination).
+    limit: 100,                 // number: Number of items to retrieve per page. Default 100 works on most exchanges. (e.g., pageSize, count)
+    page_index: 1,              // number: Page number (for offset-based pagination). Default 1 (first page).
     cursor: "",                 // string: Cursor for cursor-based pagination.
 
     // === Market Data Parameters ===
@@ -117,9 +109,17 @@ const ExchangeParams = {
 
     // === Wallet / Account Parameters ===
     asset: "",                  // string: Asset symbol (e.g., "BTC", "USDT"). (e.g., currency)
-    network: "",                // string: Network/chain for deposits/withdrawals (e.g., "ERC20", "BEP20", "TRC20").
-    address: "",                // string: Wallet address.
-    address_tag: "",            // string: Destination tag or memo for certain currencies (e.g., XRP, XLM). (e.g., memo)
+    
+    // Chain/network identification for multi-chain assets
+    network: "",                // string: Network/chain for deposits/withdrawals (e.g., "ERC20", "BEP20", "TRC20", "ETH", "BSC").
+                                // NOTE: Exchange terminology varies - some use "chain" instead of "network"
+    
+    // Withdrawal destination
+    wallet_destination: {       // Wallet destination details for withdrawals
+        address: "",            // string: Wallet address
+        address_tag: "",        // string: Destination tag, memo, or payment ID for certain currencies (XRP, XLM, etc.)
+    },
+    
     transfer_type: "",          // string: Type of transfer (e.g., "MAIN_TO_MARGIN").
     amount: null,               // string | number: Amount for transfers, withdrawals.
 
@@ -138,23 +138,14 @@ const ExchangeParams = {
     // position_side: ""        // string: e.g., "LONG", "SHORT", "BOTH" (for futures)
 };
 
-// Export the ExchangeParams object and the enums
+// Export the ExchangeParams object
 // Choose one of the following export patterns depending on your environment:
 
 // For CommonJS environments (Node.js):
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-        ExchangeParams,
-        ORDER_SIDE,
-        ORDER_TYPE,
-        TIME_IN_FORCE
+        ExchangeParams
     };
 }
 
-// For ES Modules (modern browsers, TypeScript, etc.):
-export {
-    ExchangeParams as default,
-    ORDER_SIDE,
-    ORDER_TYPE,
-    TIME_IN_FORCE
-};
+module.exports = ExchangeParams;
