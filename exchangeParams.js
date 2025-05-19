@@ -16,29 +16,35 @@
 
 const ExchangeParams = {
     // === Authentication & General API Settings ===
-    api_key: "",                // string: API Key for the exchange. (e.g., apiKey)
-    secret_key: "",             // string: API Secret Key. (e.g., secretKey, apiSecret)
-    passphrase: "",             // string: API Passphrase (required by some exchanges like Coinbase Pro, KuCoin). (e.g., passphrase)
-    user_id: "",                // string: User ID (required by some exchanges). (e.g., uid)
-    timestamp: 0,               // number: Current timestamp in milliseconds (often required for signed requests).
-    recv_window: 5000,          // number: Milliseconds for request validity (e.g., Binance's recvWindow).
-    signature: "",              // string: Generated signature for authenticated requests.
-
+    // SECURITY NOTE: Never include credentials in this template object.
+    // Always load them securely at runtime.
+    api_key: null,               // string: [REQUIRED] Load from process.env.API_KEY or secure storage
+    // secret_key: null,         // string: [REQUIRED] SECURITY RISK - NEVER include in objects or commit to version control
+                                 //         Always load directly from env vars or secure storage at runtime
+    // passphrase: null,         // string: [OPTIONAL] Required by some exchanges (e.g., Coinbase Pro, KuCoin)
+                                 //         Handle with same security as secret_key
+    user_id: null,               // string: [OPTIONAL] Required by some exchanges
+    
+    // Dynamic runtime values - DO NOT pre-populate these values
+    // timestamp: null,          // number: [REQUIRED] MUST be generated fresh at request time using Date.now()
+    recv_window: 5000,           // number: [OPTIONAL] Request validity window (milliseconds)
+    // signature: null,          // string: [REQUIRED] MUST be generated at runtime from params using secret_key
+    
     // === Endpoint & Request Type ===
     // http_method: "GET",      // string: e.g., "GET", "POST", "PUT", "DELETE" (Often handled by the SDK/library)
-    // endpoint_path: "",       // string: e.g., "/api/v3/order" (Often handled by the SDK/library)
+    quantity: null,               // string | number: Amount of base asset to buy/sell. (e.g., qty, amount, size)
+
+    // Import order parameter enums from a dedicated constants file
+    // These constants should be defined in a separate exchangeConstants.js file
 
     // === Common Order Parameters ===
     symbol: "",                 // string: Trading pair symbol (e.g., "BTCUSDT", "ETH_BTC"). (e.g., symbol, instrument_id, market)
-    side: "",                   // string: Order side ("BUY" or "SELL"). Use constants/enums. (e.g., orderSide)
-                                // Suggested Enum: ORDER_SIDE = { BUY: "BUY", SELL: "SELL" };
-    type: "",                   // string: Order type ("LIMIT", "MARKET", "STOP_LOSS", "TAKE_PROFIT", etc.). Use constants/enums. (e.g., orderType)
-                                // Suggested Enum: ORDER_TYPE = { LIMIT: "LIMIT", MARKET: "MARKET", STOP_LOSS_LIMIT: "STOP_LOSS_LIMIT", ... };
+    side: ORDER_SIDE.BUY,       // Use enum instead of raw string value
+    type: ORDER_TYPE.LIMIT,     // Use enum instead of raw string value
     quantity: "",               // string | number: Amount of base asset to buy/sell. (e.g., qty, amount, size)
     quote_order_qty: "",        // string | number: Amount of quote asset to spend (for MARKET BUY orders on some exchanges). (e.g., quoteOrderQty)
     price: "",                  // string | number: Price for LIMIT orders.
-    time_in_force: "",          // string: Time in force policy ("GTC", "IOC", "FOK", "GTX"). Use constants/enums. (e.g., tif)
-                                // Suggested Enum: TIME_IN_FORCE = { GTC: "GTC", IOC: "IOC", FOK: "FOK", POST_ONLY: "POST_ONLY" }; // (Post_Only often as 'GTX' or a boolean flag)
+    time_in_force: "GTC",       // Use TIME_IN_FORCE.GTC enum from constants file
     client_order_id: "",        // string: Custom order ID provided by the client. (e.g., clientOid, newClientOrderId)
     stop_price: "",             // string | number: Price for STOP_LOSS, TAKE_PROFIT orders. (e.g., triggerPrice)
     iceberg_qty: "",            // string | number: For iceberg orders, the visible quantity. (e.g., icebergQty)
@@ -78,7 +84,7 @@ const ExchangeParams = {
 
     // === Other Potential Fields ===
     // reduce_only: false,      // boolean: For margin/futures, if the order should only reduce a position.
-    // close_position: false,   // boolean: For margin/futures, if the order is to close a position.
+    // close_position: false,   // boolean: For futures, if the order is to close a position.
     // margin_type: "",         // string: e.g., "ISOLATED", "CROSS" (for futures)
     // position_side: ""        // string: e.g., "LONG", "SHORT", "BOTH" (for futures)
 };
@@ -128,14 +134,12 @@ const KLINE_INTERVALS = {
 */
 
 // To use it in your code:
-// let myOrderParams = { ...ExchangeParams };
-// myOrderParams.api_key = "YOUR_API_KEY";
-// myOrderParams.symbol = "BTCUSDT";
+// If you are using Node.js or a module system, you might want to export it:
+// module.exports = ExchangeParams; // For CommonJS
+export default ExchangeParams; // For ES Modules
 // myOrderParams.side = ORDER_SIDE.BUY;
 // ... and so on.
 
 // If you are using Node.js or a module system, you might want to export it:
 // module.exports = ExchangeParams; // For CommonJS
 // export default ExchangeParams; // For ES Modules
-
-// console.log("ExchangeParams template:", ExchangeParams); // For testing
