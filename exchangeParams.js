@@ -17,12 +17,12 @@
  */
 
 // Define common enums used in the parameters
-const ORDER_SIDE = {
+const ORDER_SIDE = Object.freeze({
     BUY: "BUY",
     SELL: "SELL"
-};
+});
 
-const ORDER_TYPE = {
+const ORDER_TYPE = Object.freeze({
     LIMIT: "LIMIT",
     MARKET: "MARKET",
     STOP_LOSS: "STOP_LOSS", 
@@ -30,15 +30,31 @@ const ORDER_TYPE = {
     TAKE_PROFIT: "TAKE_PROFIT",
     TAKE_PROFIT_LIMIT: "TAKE_PROFIT_LIMIT",
     LIMIT_MAKER: "LIMIT_MAKER"
-};
+});
 
-const TIME_IN_FORCE = {
+const TIME_IN_FORCE = Object.freeze({
     GTC: "GTC", // Good Til Canceled
     IOC: "IOC", // Immediate Or Cancel
     FOK: "FOK", // Fill Or Kill
     GTX: "GTX"  // Good Til Crossing (Post Only)
-};
+});
 
+/**
+ * Universal Exchange API Request Parameters Template
+ * @typedef {Object} ExchangeParams
+ * @description A standardized template for cryptocurrency exchange API request parameters
+ * @property {string} api_key - API Key for the exchange
+ * @property {string} secret_key - API Secret Key
+ * @property {string} [passphrase] - Required by some exchanges (e.g., Coinbase Pro, KuCoin)
+ * @property {string} [user_id] - Required by some exchanges
+ * @property {number} [timestamp] - Request timestamp (ms)
+ * @property {number} [recv_window] - Request validity window (ms)
+ * @property {string} symbol - Trading pair symbol (e.g., "BTCUSDT")
+ * @property {string} side - Order side (BUY or SELL)
+ * @property {string} type - Order type (LIMIT, MARKET, etc.)
+ * @property {string|number} quantity - Amount of base asset to buy/sell
+ * @property {Object} exchange_specific_params - Parameters unique to specific exchanges
+ */
 const ExchangeParams = {
     // === Authentication & General API Settings ===
     // ⚠️ SECURITY WARNING ⚠️
@@ -60,8 +76,8 @@ const ExchangeParams = {
     user_id: null,              // string: [OPTIONAL] Required by some exchanges
     
     // Dynamic runtime values - DO NOT pre-populate these values
-    // timestamp: null,          // number: [REQUIRED] MUST be generated fresh at request time using Date.now()
-    recv_window: 5000,           // number: [OPTIONAL] Request validity window (milliseconds)
+    timestamp: null,           // number: [REQUIRED] MUST be generated fresh at request time using Date.now()
+    recv_window: 5000,          // number: [OPTIONAL] Request validity window (milliseconds)
     // signature: null,          // string: [REQUIRED] MUST be generated at runtime from params using secret_key
     
     // === Endpoint & Request Type ===
@@ -74,23 +90,23 @@ const ExchangeParams = {
     symbol: "",                 // string: Trading pair symbol (e.g., "BTCUSDT", "ETH_BTC"). (e.g., symbol, instrument_id, market)
     side: ORDER_SIDE.BUY,       // string: Order side (BUY or SELL)
     type: ORDER_TYPE.LIMIT,     // string: Order type (LIMIT, MARKET, etc.)
-    quantity: "",               // string | number: Amount of base asset to buy/sell. (e.g., qty, amount, size)
-    quote_order_qty: "",        // string | number: Amount of quote asset to spend (for MARKET BUY orders on some exchanges). (e.g., quoteOrderQty)
-    price: "",                  // string | number: Price for LIMIT orders.
+    quantity: null,             // string | number: Amount of base asset to buy/sell. (e.g., qty, amount, size)
+    quote_order_qty: null,      // string | number: Amount of quote asset to spend (for MARKET BUY orders on some exchanges). (e.g., quoteOrderQty)
+    price: null,                // string | number: Price for LIMIT orders.
     time_in_force: TIME_IN_FORCE.GTC, // string: How long the order remains in effect (GTC, IOC, FOK)
     client_order_id: "",        // string: Custom order ID provided by the client. (e.g., clientOid, newClientOrderId)
-    stop_price: "",             // string | number: Price for STOP_LOSS, TAKE_PROFIT orders. (e.g., triggerPrice)
-    iceberg_qty: "",            // string | number: For iceberg orders, the visible quantity. (e.g., icebergQty)
-    leverage: "",               // string | number: Leverage for margin/futures trading (e.g., "10", 10x).
+    stop_price: null,           // string | number: Price for STOP_LOSS, TAKE_PROFIT orders. (e.g., triggerPrice)
+    iceberg_qty: null,          // string | number: For iceberg orders, the visible quantity. (e.g., icebergQty)
+    leverage: null,             // string | number: Leverage for margin/futures trading (e.g., "10", 10x).
 
     // === Order Management Parameters (Cancel, Query) ===
-    order_id: "",               // string | number: Exchange-assigned order ID. (e.g., orderId)
+    order_id: null,             // string | number: Exchange-assigned order ID. (e.g., orderId)
     orig_client_order_id: "",   // string: Original client_order_id (for canceling/querying). (e.g., origClientOrderId)
 
     // === Pagination Parameters (for fetching lists like orders, trades) ===
     start_time: 0,              // number: Timestamp (ms) for filtering results from a certain time. (e.g., startTime)
     end_time: 0,                // number: Timestamp (ms) for filtering results up to a certain time. (e.g., endTime)
-    from_id: "",                // string | number: ID to fetch results after (exclusive). (e.g., fromId, after)
+    from_id: null,              // string | number: ID to fetch results after (exclusive). (e.g., fromId, after)
     limit: 0,                   // number: Number of items to retrieve per page. (e.g., pageSize, count)
     page_index: 0,              // number: Page number (for offset-based pagination).
     cursor: "",                 // string: Cursor for cursor-based pagination.
@@ -105,7 +121,7 @@ const ExchangeParams = {
     address: "",                // string: Wallet address.
     address_tag: "",            // string: Destination tag or memo for certain currencies (e.g., XRP, XLM). (e.g., memo)
     transfer_type: "",          // string: Type of transfer (e.g., "MAIN_TO_MARGIN").
-    amount: "",                 // string | number: Amount for transfers, withdrawals.
+    amount: null,               // string | number: Amount for transfers, withdrawals.
 
     // === Exchange-Specific Parameters ===
     // Use this object to store any parameters that are unique to a specific exchange
