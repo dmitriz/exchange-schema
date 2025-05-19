@@ -1,8 +1,8 @@
-# Backlog & Discussion Summary for exchange-schema Repository
+# Backlog & Discussion Summary for `exchange-schema` Repository
 
 This document captures the key discussions, decisions, and insights leading to the creation of the `exchange-schema` repository. Its purpose is to provide context for the JavaScript objects designed for interacting with cryptocurrency exchange APIs.
 
-## Initial Goal
+## Initial Goals
 
 * To design a universal and convenient way to handle API requests and responses for cryptocurrency exchanges, focusing initially on order placement and management.
 * To create well-structured JavaScript objects for parameters and response data.
@@ -40,7 +40,7 @@ This document captures the key discussions, decisions, and insights leading to t
 
 * **Goal:** To store these JavaScript object definitions (for requests and response examples) in a GitHub repository.
 * **Name Selection:** After discussing several options focusing on "universal," "schema," and "trading/exchange," we decided on the repository name: `exchange-schema`.
-  * Link to repository: [https://github.com/dmitriz/exchange-schema](https://github.com/dmitriz/exchange-schema)
+  * Link to repository: [exchange-schema](https://github.com/dmitriz/exchange-schema)
 * **File Structure Discussed:**
   * `backlog.md`: This file, to capture discussion context.
   * `exchangeParams.js`: To contain the universal request parameters object.
@@ -64,7 +64,7 @@ This document captures the key discussions, decisions, and insights leading to t
 
 ## Next Steps (as per discussion)
 
-1. Create the `backlog.md` file with this summary.
+1. Draft `backlog.md` containing this summary.
 2. Create the `exchangeParams.js` file with the defined object.
 3. Create the `binanceResponseExamples.js` file.
 4. Create the main `README.md` file for the repository.
